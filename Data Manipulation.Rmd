@@ -1,0 +1,104 @@
+---
+title: "Data Manipulation with dplyr"
+output: github_document
+---
+```{r}
+library(tidyverse)
+```
+
+
+
+```{r}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  fig.width = 6,
+  fig.asp = 0.6,
+  out.width = "90%"
+)
+```
+
+```{r}
+options(tibble.print_min = 3)
+litters_data = 
+  read_csv("data_import_examples/FAS_litters.csv")
+
+litters_data = 
+  janitor:: clean_names(litters_data)
+
+pups_data = read.csv("data_import_examples/FAS_pups.csv")
+pups_data = janitor::clean_names(pups_data)
+```
+
+##This is where you use select
+
+Select just tells R to select which columns to show a
+
+```{r}
+select (litters_data, group, litter_number, gd0_weight, pups_born_alive )
+
+select(litters_data, group:gd_of_birth)
+```
+
+With select, you can also specify which columns you want to remove (put a - sign)
+
+```{r}
+select(litters_data, -pups_survive)
+select(litters_data, -pups_survive, -group)
+```
+You can rename variables as part of this process
+
+old name is on the right of equal sign and new name is on the left side 
+
+```{r}
+select(litters_data, GROUP = group, LiTtEr_NuMbEr = litter_number)
+```
+
+Using "rename" instead of select indicates that you want everything else to stay the same and keep in the dataframe except the variable ones you indicate that you want to change
+
+```{r}
+rename(litters_data, GROUP = group, LiTtEr_NuMbEr = litter_number )
+```
+
+Functions that you can use within select: `starts_with()`,`ends_with()` and `contains()`.
+
+ex. This selects all the variables that start with gd:
+```{r}
+select(litters_data, starts_with("gd"))
+```
+
+you can also reorganize the dataset without discarding anything using `everything()`.
+
+```{r}
+select (litters_data, litter_number, pups_survive, everything())
+```
+
+Selecting rows (a certain individual): use filter()
+
+normally you filter using comparison measures: (<,>=,>, <=, ==,!=) or (& or |), %N% (Character variables)
+
+`gd_of_birth == 20`
+`!(pups_survive == 4)`
+
+```{r}
+filter(litters_data, group == "Con7" & gd_of_birth == 20)
+```
+A common filtering step is to drop missing data on variables "drop_na"
+
+`drop_na(litters_data) will remove any row with a missing value`
+
+`drop_na(litters_data, wt_increase)` will remove rows for which `wt_increase` is missing.
+
+"Mutate" is used to change or create new select columns 
+
+ex. can look at a new variable that finds the difference between gd18_weight and gd0_weight.
+
+```{r}
+#litter_data2 =
+mutate(litters_data,
+       wt_gain = gd18_weight - gd0_weight,
+       group = str_to_lower (group),
+       # wt_gain_kg = wt_gain * 2.2
+       )
+```
+
+
